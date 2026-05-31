@@ -180,14 +180,6 @@
   .top-action .chev { color: var(--fg-low); }
 
   /* ===== Drop-down proposal: progress bar + actions caption == */
-  .progress-hint {
-    display: none;
-    margin-left: auto;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--fg-low);
-    font-weight: 500;
-  }
   .actions-caption {
     display: none;
     margin: 16px 0 0;
@@ -204,7 +196,6 @@
     gap: 8px;
     margin-left: 0;
   }
-  body[data-step-active="2"] .progress-hint { display: inline-flex; }
   .actions-caption { display: block; }
   /* Hide per-UBO "Attach documents" trigger */
   .doc-card .doc-attach { display: none; }
@@ -413,71 +404,216 @@
   /* ===== Progress bar ========================================= */
   .progress {
     max-width: 880px;
-    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
   }
-  .progress-head {
+
+  /* Track + segment layout */
+  .progress-and-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .progress-columns {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .progress-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .progress-col-gap {
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  .progress-segment {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .progress-track-wrap {
+    position: relative;
+    height: 4px;
+  }
+
+  .progress-segment .progress-track {
+    position: absolute;
+    inset: 0;
+    height: 4px;
+    background: var(--border-default);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-segment .progress-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--primary-default);
+    border-radius: 100px;
+    transition: width 400ms ease;
+  }
+
+  .progress-fill-warning {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: #FFF3C9;
+    border-radius: 100px;
+    z-index: 2;
+    cursor: default;
+    transition: width 400ms ease, left 400ms ease;
+  }
+
+  .progress-gap { width: 8px; flex-shrink: 0; }
+
+  .progress-fill-warning[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--fg-high);
+    color: var(--bg-default);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms;
+    z-index: 100;
+  }
+  .progress-fill-warning::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--fg-high);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms;
+    z-index: 101;
+  }
+  .progress-fill-warning[data-tooltip]:hover::after,
+  .progress-fill-warning[data-tooltip]:hover::before {
+    opacity: 1;
+  }
+  /* Footer: dot + label */
+  .progress-segment-footer {
+    display: flex;
+    align-items: center;
+    padding-left: 0;
+    margin-top: 6px;
+  }
+
+  .progress-node-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--border-default);
+    border: none;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    flex-shrink: 0;
+    transition: background 300ms;
+  }
+  .progress-node-dot.is-active   { background: var(--primary-default); }
+  .progress-node-dot.is-complete { background: var(--success-default); }
+  .progress-node-dot.is-warning  { background: #483C10; }
+
+  .progress-node-label {
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--fg-low);
+    font-weight: 400;
+    white-space: nowrap;
+    padding-left: 0;
+    position: relative;
+    left: -6px;
+  }
+  .progress-node-label.is-current {
+    font-weight: 700;
+    color: var(--fg-high);
+  }
+  .progress-node-label.is-done { color: var(--success-default); }
+  .progress-node-label.is-done.is-current  { font-weight: 700; color: var(--success-default); }
+  .progress-node-label.is-done:not(.is-current) { font-weight: 400; }
+
+  .progress-fill.is-complete { background: var(--success-default) !important; }
+
+  /* Complete state */
+  .progress.complete #progress-fill-1,
+  .progress.complete #progress-fill-2 {
+    background: var(--success-default);
+  }
+
+  /* Bottom row: hint left, value right */
+  .progress-bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-top: 12px;
+    padding: 0;
   }
-  .progress-label {
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0;
-    color: var(--fg-low);
-    font-weight: 500;
+  /* Top row: chip + porcentaje */
+  .progress-top {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
   }
-  .progress-step {
-    color: var(--fg-low);
-    font-weight: 400;
-    opacity: 0.75;
+  .progress-value-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .progress-value {
     font-size: 12px;
-    line-height: 16px;
+    font-weight: 500;
     color: var(--fg-medium);
     font-variant-numeric: tabular-nums;
-    font-weight: 500;
     border-radius: var(--radius-pill);
     padding: 2px 0;
     transition: background 200ms, color 200ms, padding 200ms;
   }
   .progress-value.is-warning {
-    background: var(--bg-warning);
-    color: var(--fg-warning);
-    font-weight: 600;
-    padding: 4px 12px;
-  }
-  .progress-track {
-    position: relative;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--bg-disabled);
-    overflow: hidden;
-  }
-  .progress-fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 0%;
-    background: var(--primary-default);
-    border-radius: 999px;
-    transition: width 320ms cubic-bezier(.4, 0, .2, 1), background-color 200ms;
+    background: #FFF9E3;
+    color: #483C10;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    line-height: 18px;
   }
   .progress.complete .progress-value {
-    background: transparent;
+    background: var(--success-subtle);
     color: var(--success-default);
-    padding: 0;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 100px;
+    line-height: 18px;
   }
-  .progress.complete .progress-fill { background: var(--success-default); }
-
-  /* Tooltip on progress label */
-  .progress-label-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-  }
+  /* Info button + tooltip base appearance */
   .progress-info {
     display: inline-flex;
     align-items: center;
@@ -499,8 +635,8 @@
     bottom: calc(100% + 8px);
     width: 280px;
     padding: 10px 12px;
-    background: #1F2223;
-    color: #fff;
+    background: var(--fg-high);
+    color: var(--bg-default);
     font-size: 12px;
     line-height: 16px;
     letter-spacing: -0.002em;
@@ -519,7 +655,7 @@
     left: 18px;
     top: 100%;
     border: 5px solid transparent;
-    border-top-color: #1F2223;
+    border-top-color: var(--fg-high);
   }
   .progress-label-wrap:hover .progress-tooltip,
   .progress-info:focus + .progress-tooltip,
@@ -689,50 +825,25 @@
     color: var(--fg-medium);
     font-weight: 400;
   }
-  .field .warn {
+  .warn {
     display: inline-flex;
     align-items: center;
-    color: var(--fg-warning);
-    position: relative;
+    vertical-align: middle;
     cursor: default;
   }
+  .warn svg { display: none; }
   .warn::after {
-    content: "Missing information";
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--fg-high);
-    color: var(--bg-default);
+    content: "Missing field";
     font-size: 12px;
-    line-height: 16px;
-    font-weight: 400;
-    padding: 6px 10px;
-    border-radius: var(--radius-md);
+    font-weight: 500;
+    color: #483C10;
+    background: #FFF9E3;
+    padding: 2px 8px;
+    border-radius: 100px;
     white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 150ms;
-    z-index: 100;
+    line-height: 18px;
   }
-  .warn::before {
-    content: '';
-    position: absolute;
-    bottom: calc(100% + 2px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid var(--fg-high);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 150ms;
-    z-index: 101;
-  }
-  .warn:hover::after,
-  .warn:hover::before { opacity: 1; }
+  .warn::before { display: none; }
   .field.address .value {
     line-height: 22px;
   }
@@ -887,10 +998,12 @@
   /* Action buttons */
   .actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 8px 1fr;
+    gap: 0;
     max-width: 880px;
   }
+  .action-bar .actions .btn:first-child { grid-column: 1; }
+  .action-bar .actions .btn:last-child  { grid-column: 3; }
   .btn {
     height: 44px;
     border-radius: var(--radius-md);
@@ -945,7 +1058,7 @@
     align-items: flex-start;
     gap: 10px;
     max-width: 880px;
-    margin: 0 0 16px 0;
+    margin: 28px 0 28px 0;
     padding: 4px 2px;
     cursor: pointer;
     user-select: none;
@@ -2042,8 +2155,8 @@
                 <div class="field" data-field-row="nationality"><span class="label">Nationality:</span><span class="value" data-field="nationality">Mexican</span></div>
                 <div class="field" data-field-row="profession"><span class="label">Profession:</span>
                   <span class="warn" title="Required field is empty">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#483C10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                       <line x1="12" y1="9" x2="12" y2="13"/>
                       <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
@@ -2120,8 +2233,8 @@
                 <div class="field" data-field-row="nationality"><span class="label">Nationality:</span><span class="value" data-field="nationality">Mexican</span></div>
                 <div class="field" data-field-row="profession"><span class="label">Profession:</span>
                   <span class="warn" title="Required field is empty">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#483C10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                       <line x1="12" y1="9" x2="12" y2="13"/>
                       <line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
@@ -2166,7 +2279,7 @@
         <!-- Step 2 — Documentation upload -->
         <section class="step-pane" data-step-pane="2" hidden>
           <p class="eyebrow">Step 2 of 2</p>
-          <h1 class="page-title">UBO documentation</h1>
+          <h1 class="page-title">UBOs documentation</h1>
           <p class="page-subtitle">
             Attach the INE and proof of address for each UBO. Providing this information will speed up your application and improve your credit offers.
           </p>
@@ -2412,36 +2525,84 @@
 
     <!-- ====================== Action bar ====================== -->
     <div class="action-bar" data-screen-label="action-bar">
-      <div class="progress" id="progress" aria-label="UBOs information progress">
-        <div class="progress-head">
+      <div class="progress-and-actions">
+      <div class="progress" id="progress">
+
+        <!-- Chip: porcentaje + tooltip -->
+        <div class="progress-top">
           <div class="progress-value-wrap">
-            <span class="progress-value"><span id="progress-pct">0</span>% of 2 steps completed</span>
-            <button class="progress-info progress-info-dd" type="button" aria-label="About this progress" tabindex="0">
+            <span class="progress-value">
+              <span id="progress-pct">0</span>% of the 2 steps complete
+            </span>
+            <button class="progress-info progress-info-dd" type="button"
+              aria-label="About this progress" tabindex="0">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M8 14.5C6.71442 14.5 5.45772 14.1188 4.3888 13.4046C3.31988 12.6903 2.48676 11.6752 1.99479 10.4874C1.50282 9.29972 1.37409 7.99279 1.6249 6.73191C1.8757 5.47104 2.49477 4.31285 3.40381 3.40381C4.31285 2.49476 5.47104 1.8757 6.73192 1.6249C7.99279 1.37409 9.29973 1.50281 10.4874 1.99478C11.6752 2.48675 12.6903 3.31987 13.4046 4.38879C14.1188 5.45771 14.5 6.71442 14.5 8C14.4982 9.72335 13.8128 11.3756 12.5942 12.5942C11.3756 13.8128 9.72335 14.4982 8 14.5ZM8 2.5C6.91221 2.5 5.84884 2.82257 4.94437 3.42692C4.0399 4.03126 3.33495 4.89025 2.91867 5.89524C2.50238 6.90023 2.39347 8.0061 2.60568 9.073C2.8179 10.1399 3.34173 11.1199 4.11092 11.8891C4.8801 12.6583 5.86011 13.1821 6.92701 13.3943C7.9939 13.6065 9.09977 13.4976 10.1048 13.0813C11.1098 12.6651 11.9687 11.9601 12.5731 11.0556C13.1774 10.1512 13.5 9.0878 13.5 8C13.4983 6.54182 12.9184 5.14383 11.8873 4.11274C10.8562 3.08165 9.45819 2.50165 8 2.5ZM7.5 7.5V11C7.5 11.1326 7.55268 11.2598 7.64645 11.3536C7.74022 11.4473 7.86739 11.5 8 11.5C8.13261 11.5 8.25979 11.4473 8.35356 11.3536C8.44732 11.2598 8.5 11.1326 8.5 11V7.5C8.5 7.36739 8.44732 7.24021 8.35356 7.14645C8.25979 7.05268 8.13261 7 8 7C7.86739 7 7.74022 7.05268 7.64645 7.14645C7.55268 7.24021 7.5 7.36739 7.5 7.5ZM8.75 5.25C8.75 5.10166 8.70602 4.95666 8.6236 4.83332C8.54119 4.70999 8.42406 4.61386 8.28701 4.55709C8.14997 4.50033 7.99917 4.48547 7.85368 4.51441C7.7082 4.54335 7.57456 4.61478 7.46967 4.71967C7.36478 4.82456 7.29335 4.9582 7.26441 5.10368C7.23547 5.24917 7.25033 5.39997 7.30709 5.53701C7.36386 5.67406 7.45999 5.79119 7.58333 5.8736C7.70666 5.95601 7.85167 6 8 6C8.19892 6 8.38968 5.92098 8.53033 5.78033C8.67098 5.63968 8.75 5.44891 8.75 5.25Z" fill="currentColor"></path>
+                <path d="M8 14.5C6.71442 14.5 5.45772 14.1188 4.3888 13.4046C3.31988 12.6903 2.48676 11.6752 1.99479 10.4874C1.50282 9.29972 1.37409 7.99279 1.6249 6.73191C1.8757 5.47104 2.49477 4.31285 3.40381 3.40381C4.31285 2.49476 5.47104 1.8757 6.73192 1.6249C7.99279 1.37409 9.29973 1.50281 10.4874 1.99478C11.6752 2.48675 12.6903 3.31987 13.4046 4.38879C14.1188 5.45771 14.5 6.71442 14.5 8C14.4982 9.72335 13.8128 11.3756 12.5942 12.5942C11.3756 13.8128 9.72335 14.4982 8 14.5ZM8 2.5C6.91221 2.5 5.84884 2.82257 4.94437 3.42692C4.0399 4.03126 3.33495 4.89025 2.91867 5.89524C2.50238 6.90023 2.39347 8.0061 2.60568 9.073C2.8179 10.1399 3.34173 11.1199 4.11092 11.8891C4.8801 12.6583 5.86011 13.1821 6.92701 13.3943C7.9939 13.6065 9.09977 13.4976 10.1048 13.0813C11.1098 12.6651 11.9687 11.9601 12.5731 11.0556C13.1774 10.1512 13.5 9.0878 13.5 8C13.4983 6.54182 12.9184 5.14383 11.8873 4.11274C10.8562 3.08165 9.45819 2.50165 8 2.5ZM7.5 7.5V11C7.5 11.1326 7.55268 11.2598 7.64645 11.3536C7.74022 11.4473 7.86739 11.5 8 11.5C8.13261 11.5 8.25979 11.4473 8.35356 11.3536C8.44732 11.2598 8.5 11.1326 8.5 11V7.5C8.5 7.36739 8.44732 7.24021 8.35356 7.14645C8.25979 7.05268 8.13261 7 8 7C7.86739 7 7.74022 7.05268 7.64645 7.14645C7.55268 7.24021 7.5 7.36739 7.5 7.5ZM8.75 5.25C8.75 5.10166 8.70602 4.95666 8.6236 4.83332C8.54119 4.70999 8.42406 4.61386 8.28701 4.55709C8.14997 4.50033 7.99917 4.48547 7.85368 4.51441C7.7082 4.54335 7.57456 4.61478 7.46967 4.71967C7.36478 4.82456 7.29335 4.9582 7.26441 5.10368C7.23547 5.24917 7.25033 5.39997 7.30709 5.53701C7.36386 5.67406 7.45999 5.79119 7.58333 5.8736C7.70666 5.95601 7.85167 6 8 6C8.19892 6 8.38968 5.92098 8.53033 5.78033C8.67098 5.63968 8.75 5.44891 8.75 5.25Z" fill="currentColor"/>
               </svg>
-              <span class="progress-tooltip" role="tooltip">Complete 100% of the 2 step information to speed up your request and unlock better credit offers.</span>
+              <span class="progress-tooltip" role="tooltip">
+                Complete both steps to speed up your application
+                and unlock better credit offers.
+              </span>
             </button>
           </div>
-          <span class="progress-hint" aria-live="polite">Confirm the checkbox below in order to continue</span>
         </div>
-        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="progress-fill" id="progress-fill"></div>
+
+        <!-- Progress columns — solo barras y labels -->
+        <div class="progress-columns">
+
+          <!-- Columna izquierda: barra 1 -->
+          <div class="progress-col">
+            <div class="progress-segment" id="pseg-1">
+              <div class="progress-track-wrap">
+                <div class="progress-node-dot" id="pdot-1"></div>
+                <div class="progress-track" id="ptrack-1">
+                  <div class="progress-fill" id="progress-fill-1"></div>
+                </div>
+                <div class="progress-fill-warning" id="progress-fill-warning-1"></div>
+              </div>
+              <div class="progress-segment-footer">
+                <span class="progress-node-label" id="plabel-1">Step 1: Information</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gap fijo entre columnas -->
+          <div class="progress-col-gap"></div>
+
+          <!-- Columna derecha: barra 2 -->
+          <div class="progress-col">
+            <div class="progress-segment" id="pseg-2">
+              <div class="progress-track-wrap">
+                <div class="progress-node-dot" id="pdot-2"></div>
+                <div class="progress-track" id="ptrack-2">
+                  <div class="progress-fill" id="progress-fill-2"></div>
+                </div>
+                <div class="progress-fill-warning" id="progress-fill-warning-2"></div>
+              </div>
+              <div class="progress-segment-footer">
+                <span class="progress-node-label" id="plabel-2">Step 2: Documentation</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+        <!-- Confirmation checkbox (visible on Step 2 only) -->
+        <label class="confirm-row" id="confirm-row">
+          <input type="checkbox" id="confirm-check" class="confirm-check" />
+          <span class="confirm-box" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="confirm-label">I confirm that the UBOs information provided here is accurate and up to date to the best of my knowledge.</span>
+        </label>
+
       </div>
 
-      <!-- Confirmation checkbox (visible on Step 1 only) -->
-      <label class="confirm-row" id="confirm-row">
-        <input type="checkbox" id="confirm-check" class="confirm-check" />
-        <span class="confirm-box" aria-hidden="true">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-        <span class="confirm-label">I confirm that the UBOs information above is accurate and up to date to the best of my knowledge.</span>
-      </label>
-
       <div class="actions">
-        <button class="btn btn-secondary" type="button">Go back</button>
-        <button class="btn btn-primary" type="button" id="continue-btn">Next step</button>
+        <button class="btn btn-secondary" id="go-back-btn" type="button">Go back</button>
+        <button class="btn btn-primary" id="continue-btn" type="button">Next step</button>
+      </div>
+
       </div>
     </div>
   </main>
@@ -2479,32 +2640,170 @@
     // 50/50 split between the two halves
     const pct = Math.round((infoPct * 0.5 + docPct * 0.5) * 100);
 
-    const fill = document.getElementById('progress-fill');
     const pctEl = document.getElementById('progress-pct');
     const wrap = document.getElementById('progress');
-    fill.style.width = pct + '%';
-    pctEl.textContent = pct;
-    wrap.querySelector('.progress-track').setAttribute('aria-valuenow', pct);
-    wrap.classList.toggle('complete', pct === 100);
+    if (pctEl) pctEl.textContent = pct;
+    if (wrap) wrap.classList.toggle('complete', pct === 100);
+
+    // Sync barra visual del step 1 al cargar
+    const fill1 = document.getElementById('progress-fill-1');
+    if (fill1) fill1.style.width = (pct <= 50 ? pct * 2 : 100) + '%';
 
     // Sync the step label based on which pane the user is in
     const scroll = document.getElementById('scroll');
     const step = scroll && scroll.dataset.step === '2' ? 2 : 1;
     if (typeof updateAvatarStates === 'function') updateAvatarStates();
     if (typeof syncProgressChip === 'function') syncProgressChip();
+    if (typeof updateWarningFill === 'function') updateWarningFill();
   }
   window.updateProgress = updateProgress;
   updateProgress();
+  updateWarningFill();
+  syncProgressChip();
+
+  function updateWarningFill() {
+    try {
+      const scroll = document.getElementById('scroll');
+      const currentStep = parseInt(scroll?.dataset.step || '1', 10);
+      const isConfirmed = !!(document.getElementById('confirm-check')?.checked);
+
+      // Step 1 progress
+      const infoCards = document.querySelectorAll('.card[data-ubo]');
+      let infoTotal = 0, infoFilled = 0;
+      infoCards.forEach(card => {
+        const fields = card.querySelectorAll('.field');
+        infoTotal += fields.length;
+        fields.forEach(f => {
+          if (!f.querySelector('.warn')) infoFilled++;
+        });
+      });
+      const step1Pct = infoTotal > 0
+        ? (infoFilled / infoTotal) * 100 : 100;
+      const step1Missing = Math.max(0, 100 - step1Pct);
+
+      // Step 2 progress
+      const uboCount = document.querySelectorAll(
+        '.doc-card[data-doc-ubo]').length || 2;
+      const expectedDocTotal = uboCount * 2;
+      let docTotal = 0, docFilled = 0;
+      if (typeof uploaded !== 'undefined') {
+        Object.values(uploaded).forEach(ubo => {
+          docTotal += 2;
+          if (ubo.ine) docFilled++;
+          if (ubo.poa) docFilled++;
+        });
+      }
+      if (docTotal === 0) docTotal = expectedDocTotal;
+      const step2Pct = (docFilled / docTotal) * 100;
+      const step2Missing = Math.max(0, 100 - step2Pct);
+
+      // Bar 1 fill
+      const fill1 = document.getElementById('progress-fill-1');
+      const warn1 = document.getElementById('progress-fill-warning-1');
+      if (fill1) fill1.style.width = step1Pct + '%';
+      if (warn1) {
+        const showWarn1 = isConfirmed
+          && (currentStep >= 2 || window.__visitedStep2)
+          && step1Missing > 0;
+        warn1.style.left = step1Pct + '%';
+        warn1.style.width = showWarn1 ? step1Missing + '%' : '0%';
+        const missingFields = infoTotal - infoFilled;
+        warn1.setAttribute('data-tooltip',
+          missingFields === 1 ? '1 missing field' : `${missingFields} missing fields`
+        );
+      }
+
+      // Bar 2 fill
+      const fill2 = document.getElementById('progress-fill-2');
+      const warn2 = document.getElementById('progress-fill-warning-2');
+      if (fill2) fill2.style.width = step2Pct + '%';
+      if (warn2) {
+        const showWarn2 = isConfirmed && window.__visitedStep2
+          && step2Missing > 0;
+        warn2.style.left = step2Pct + '%';
+        warn2.style.width = showWarn2 ? step2Missing + '%' : '0%';
+        const missingDocs = docTotal - docFilled;
+        warn2.setAttribute('data-tooltip',
+          missingDocs === 1 ? 'Missing 1 document' : `Missing ${missingDocs} documents`
+        );
+      }
+
+      // Step 1 states
+      const dot1 = document.getElementById('pdot-1');
+      const label1 = document.getElementById('plabel-1');
+      const step1Complete = step1Pct >= 100;
+
+      if (dot1) {
+        dot1.classList.toggle('is-active', !step1Complete);
+        dot1.classList.toggle('is-complete', step1Complete);
+      }
+      if (fill1) fill1.classList.toggle('is-complete', step1Complete);
+      if (label1) {
+        label1.classList.toggle('is-current', currentStep === 1);
+        if (step1Complete) {
+          label1.textContent = 'Step 1: Completed';
+          label1.classList.add('is-done');
+        } else {
+          label1.textContent = 'Step 1: Information';
+          label1.classList.remove('is-done');
+        }
+      }
+
+      // Step 2 states
+      const dot2 = document.getElementById('pdot-2');
+      const label2 = document.getElementById('plabel-2');
+      const step2Complete = step2Pct >= 100;
+      const step2Visited = currentStep >= 2 || window.__visitedStep2;
+
+      if (dot2) {
+        dot2.classList.remove('is-active', 'is-complete', 'is-warning');
+        const hasAnyDoc = docFilled > 0;
+        const onStep2 = currentStep === 2;
+
+        if (step2Complete) {
+          dot2.classList.add('is-complete');
+        } else if (onStep2 || hasAnyDoc) {
+          dot2.classList.add('is-active');
+        } else if (isConfirmed && !hasAnyDoc && window.__visitedStep2) {
+          dot2.classList.add('is-warning');
+        }
+        // else: stays gray (default)
+      }
+      if (fill2) fill2.classList.toggle('is-complete', step2Complete);
+      if (label2) {
+        label2.classList.toggle('is-current', currentStep === 2);
+        if (step2Complete && step2Visited) {
+          label2.textContent = 'Step 2: Completed';
+          label2.classList.add('is-done');
+        } else {
+          label2.textContent = 'Step 2: Documentation';
+          label2.classList.remove('is-done');
+        }
+      }
+
+    } catch(e) {
+      console.warn('updateWarningFill error:', e);
+    }
+  }
+  window.updateWarningFill = updateWarningFill;
 
   function syncProgressChip() {
-    const isChecked = !!(document.getElementById('confirm-check')
-      && document.getElementById('confirm-check').checked);
+    const isChecked = !!(document.getElementById('confirm-check')?.checked);
     const pct = parseInt(
       document.getElementById('progress-pct')?.textContent || '0', 10
     );
     const valueEl = document.querySelector('.progress-value');
     if (!valueEl) return;
-    valueEl.classList.toggle('is-warning', isChecked && pct < 100);
+
+    const isComplete = pct >= 100;
+    const isWarning = isChecked && !isComplete;
+
+    valueEl.classList.toggle('is-warning', isWarning);
+
+    // Reconstruir el contenido completo del span
+    const copy = '% of the 2 steps complete';
+
+    valueEl.innerHTML = `<span id="progress-pct">${pct}</span>${copy}`;
   }
   window.syncProgressChip = syncProgressChip;
 
@@ -2626,13 +2925,32 @@
         </div>`;
     }).join('');
 
-    // Mostrar chevron solo si UBOs no están al 100%
-    const isComplete = pct >= 100;
+    // Calcular qué falta exactamente
+    const allInfoComplete = (() => {
+      let missing = 0;
+      document.querySelectorAll('.card[data-ubo]')
+        .forEach(card => {
+          missing += card.querySelectorAll('.field .warn').length;
+        });
+      return missing === 0;
+    })();
+
+    const allDocsComplete = (() => {
+      const u = (typeof uploaded !== 'undefined') ? uploaded : {};
+      const ids = Array.from(
+        document.querySelectorAll('.doc-card[data-doc-ubo]')
+      ).map(el => el.dataset.docUbo);
+      return ids.every(id => u[id] && u[id].ine && u[id].poa);
+    })();
+
+    const everythingComplete = allInfoComplete && allDocsComplete;
+
+    // Chevron: solo si falta algo
     const chevron = document.getElementById('submit-ubos-chevron');
     const card = document.getElementById('submit-ubos-card');
 
     if (chevron) {
-      if (isComplete) {
+      if (everythingComplete) {
         chevron.hidden = true;
         card?.classList.remove('is-editable');
       } else {
@@ -2641,29 +2959,30 @@
       }
     }
 
-    // Navegar a step 1 al hacer click en la card o el chevron
+    // Click handler con redirect inteligente
     const handleUboCardClick = () => {
-      setStep(1);
-      const continueBtn = document.getElementById('continue-btn');
-      if (continueBtn) continueBtn.textContent = 'Next step';
+      if (everythingComplete) return;
+
+      if (!allInfoComplete) {
+        setStep(1);
+      } else {
+        setStep(2);
+        document.querySelectorAll('.doc-card').forEach(docCard => {
+          if (typeof setAccordionOpen === 'function') {
+            setAccordionOpen(docCard, false);
+          } else {
+            docCard.classList.remove('is-open');
+          }
+        });
+      }
     };
 
-    // Remover listener anterior para evitar duplicados
+    // Evitar listeners duplicados clonando la card
     const oldCard = document.getElementById('submit-ubos-card');
-    const newCard = oldCard.cloneNode(true);
-    oldCard.parentNode.replaceChild(newCard, oldCard);
-
-    // Re-obtener referencias tras el clone
-    const freshCard = document.getElementById('submit-ubos-card');
-    const freshChevron = document.getElementById('submit-ubos-chevron');
-
-    if (freshChevron) {
-      freshChevron.hidden = isComplete;
-      freshChevron.style.display = isComplete ? 'none' : '';
-    }
-
-    if (freshCard && !isComplete) {
-      freshCard.addEventListener('click', handleUboCardClick);
+    if (oldCard && !everythingComplete) {
+      const newCard = oldCard.cloneNode(true);
+      oldCard.parentNode.replaceChild(newCard, oldCard);
+      newCard.addEventListener('click', handleUboCardClick);
     }
   }
   window.populateSubmitStep = populateSubmitStep;
@@ -2682,6 +3001,7 @@
       if (continueBtn) continueBtn.textContent = 'Next step';
     } else if (n === 2) {
       if (continueBtn) continueBtn.textContent = 'Confirm and continue';
+      window.__visitedStep2 = true;
     } else if (n === 3) {
       if (continueBtn) continueBtn.textContent = 'Send application';
     }
@@ -2690,6 +3010,11 @@
     updateProgress();
     updateFade();
     syncContinueDisabled();
+    if (typeof updateWarningFill === 'function') updateWarningFill();
+    const goBack = document.getElementById('go-back-btn');
+    if (goBack) {
+      goBack.textContent = n === 2 ? 'Previous step' : 'Go back';
+    }
   }
   window.setStep = setStep;
 
@@ -2772,14 +3097,28 @@
   if (confirmCheck) confirmCheck.addEventListener('change', () => {
     syncContinueDisabled();
     syncCardsCheckedFromCheckbox();
-    const hint = document.querySelector('.progress-hint');
-    if (hint) hint.style.visibility = document.getElementById('confirm-check').checked ? 'hidden' : 'visible';
     syncProgressChip();
+    updateWarningFill();
   });
 
   // Default step is 1 — initialize body attribute + button states
   document.body.setAttribute('data-step-active', '1');
   document.body.setAttribute('data-proposal', 'dropdown');
+  updateWarningFill();
+  // Bold label del step inicial
+  const label1 = document.getElementById('plabel-1');
+  const label2 = document.getElementById('plabel-2');
+  if (label1) label1.classList.add('is-current');
+  if (label2) label2.classList.remove('is-current');
+  // Forzar dot-1 visible siempre al cargar
+  const dot1Init = document.getElementById('pdot-1');
+  if (dot1Init) dot1Init.classList.add('is-active');
+  // Asegurar que dot-2 es visible al cargar
+  const dot2Init = document.getElementById('pdot-2');
+  if (dot2Init) dot2Init.style.display = 'block';
+  // Initialize go-back label
+  const _goBack = document.getElementById('go-back-btn');
+  if (_goBack) _goBack.textContent = 'Go back';
 
   // ============ Drop-down proposal: doc-card accordion ============
   function setAccordionOpen(card, open) {
@@ -2968,8 +3307,6 @@
     b.addEventListener('click', () => setTimeout(openFirstAccordionIfDropdown, 0));
   });
   syncContinueDisabled();
-  const _hint = document.querySelector('.progress-hint');
-  if (_hint) _hint.style.visibility = document.getElementById('confirm-check').checked ? 'hidden' : 'visible';
 
   // ============ UBO documentation sheet ============
   const DOC_NAMES = { 'ubo-1': 'Alejandro', 'ubo-2': 'Sofía' };
@@ -3333,7 +3670,7 @@
         if (av) av.textContent = '?';
       }
 
-      const WARN_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+      const WARN_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#483C10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 
       // Generic per-row setter: renders <span class="value" …>val</span> when val is non-empty,
       // otherwise renders the missing-info warn icon. Keeps the row's <span class="label"> intact.
